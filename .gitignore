@@ -1,0 +1,4 @@
+dataset/
+datasetovi/
+**/__pycache__
+*.pth

@@ -76,5 +76,4 @@ class CustomVOCDataset(Dataset):
 
         img, target = load_image_and_annotations(img_path, ann_path, self.CLASSES, self.transforms)
 
-        return img, target
-
+        return img, target, image_id  ## u train trazi 2 parametra, a u metrikama trazi 3 tako da mora da vidimo kako da sredimo to

@@ -38,7 +38,12 @@ def train_model(model, data_loader, device, num_epochs):
             optimizer.step()
 
             epoch_loss += losses.item()
+        save_directory = 'finetune modeli'
+        os.makedirs(save_directory, exist_ok=True)
 
+        # Cuva model
+        torch.save(model.state_dict(), os.path.join(save_directory, 'frcnn_custom'+str(epoch)+'.pth'))
+        
         lr_scheduler.step()
         print(f"Epoch #{epoch} loss: {epoch_loss}")
 

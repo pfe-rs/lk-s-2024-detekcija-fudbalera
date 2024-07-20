@@ -58,13 +58,14 @@ def load_image_and_annotations(img_path, xml_path, CLASSES, transform=None):
 
 # Klasa za dataset
 class CustomVOCDataset(Dataset):
-    def __init__(self, root, CLASSES, transforms=None):
+    def __init__(self, root, CLASSES, transforms=None, return_image_id=False):
         self.root = root
         self.transforms = transforms
         self.CLASSES = CLASSES
         self.image_dir = os.path.join(root, 'images')
         self.annotation_dir = os.path.join(root, 'annotations')
         self.image_ids = [f[:-4] for f in os.listdir(self.image_dir) if f.endswith('.jpg')]
+        self.return_image_id = return_image_id  
 
     def __len__(self):
         return len(self.image_ids)
@@ -76,5 +77,9 @@ class CustomVOCDataset(Dataset):
 
         img, target = load_image_and_annotations(img_path, ann_path, self.CLASSES, self.transforms)
 
-        return img, target
+        if self.return_image_id:
+            return img, target, image_id
+        else:
+            return img, target  
 
+        

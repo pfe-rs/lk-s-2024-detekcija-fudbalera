@@ -2,6 +2,7 @@ import wget
 import zipfile
 import os
 import shutil
+from src.utils import *
     
 def srediDataset(skinuti_na_ovaj_path, naziv_fajla):
     output_file = downloadDataset(skinuti_na_ovaj_path, naziv_fajla)
@@ -10,8 +11,6 @@ def srediDataset(skinuti_na_ovaj_path, naziv_fajla):
 
 
 def downloadDataset(skinuti_na_ovaj_path, naziv_fajla):
-
-    url = "https://universe.roboflow.com/ds/tE2lVUrLjS?key=ROqhczt6Fq"
 
     # Kreira direktorijum ako ne postoji
     os.makedirs(skinuti_na_ovaj_path, exist_ok=True)

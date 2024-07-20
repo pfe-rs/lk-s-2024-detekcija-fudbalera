@@ -28,5 +28,8 @@ gamma = 0.1
 # Broj epoha
 num_epochs = 10
 
-#threshold za metrike (compare_predictions_with_annotations)
+# Threshold za metrike (compare_predictions_with_annotations)
 thrcompare = 0.01
+
+# Broj iteracija za generisanje slika
+N = 3

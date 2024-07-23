@@ -2,8 +2,11 @@ import wget
 import zipfile
 import os
 import shutil
+from torch.utils.data import Dataset
 from src.utils import *
-    
+from PIL import Image
+import torch
+
 def srediDataset(skinuti_na_ovaj_path, naziv_fajla):
     output_file = downloadDataset(skinuti_na_ovaj_path, naziv_fajla)
     unzipDataset(output_file, output_file+"_unzip")

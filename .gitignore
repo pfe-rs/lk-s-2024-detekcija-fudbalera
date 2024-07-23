@@ -3,3 +3,4 @@ datasetovi/
 finetune modeli/
 **/__pycache__
 *.pth
+datasetoviraw/

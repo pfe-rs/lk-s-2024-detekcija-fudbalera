@@ -53,8 +53,8 @@ features = nn.Sequential(
 
 #putanje za slike i anotacije yolo trening
 
-train_img_dir = '/content/dataset_yolo8/train/images'
-train_labels_dir = '/content/dataset_yolo8/train/labels'
+train_img_dir = 'datasetoviraw/datasetyolo.zip_unzip/train/images'
+train_labels_dir = 'datasetoviraw/datasetyolo.zip_unzip/train/labels'
 batch_size_yolo = 8
 num_epochs_yolo = 10
 learning_rate_yolo = 0.001

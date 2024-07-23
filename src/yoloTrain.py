@@ -1,4 +1,6 @@
 from src.utils import *
+import torch
+from tqdm import tqdm
 
 def train(model, optimizer, data_loader, device):
     model.train()

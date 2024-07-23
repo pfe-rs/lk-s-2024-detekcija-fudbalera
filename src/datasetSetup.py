@@ -6,9 +6,11 @@ from src.utils import *
     
 def srediDataset(skinuti_na_ovaj_path, naziv_fajla):
     output_file = downloadDataset(skinuti_na_ovaj_path, naziv_fajla)
+    print("File downloaded or caches")
     unzipDataset(output_file, output_file+"_unzip")
+    print("File unziped")
     organizeDataset(output_file+"_unzip", output_file+"_sredjen")
-
+    print("Finished dataset customization")
 
 def downloadDataset(skinuti_na_ovaj_path, naziv_fajla):
 
@@ -18,8 +20,10 @@ def downloadDataset(skinuti_na_ovaj_path, naziv_fajla):
     #Path za novi fajl
     output_file = os.path.join(skinuti_na_ovaj_path, naziv_fajla)
 
-    # Download
-    wget.download(url, output_file)
+    if not os.path.exists(output_file):
+        # Download
+
+        wget.download(urlyolo, output_file)
     
     return output_file
 

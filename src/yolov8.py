@@ -1,4 +1,5 @@
 from src.utils import *
+from torchvision.models import resnet18
 
 class YOLOv8(nn.Module):
     def __init__(self, features, num_bboxes=2, num_classes=4, bn=True):

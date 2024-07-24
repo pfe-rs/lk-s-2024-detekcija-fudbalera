@@ -33,7 +33,9 @@ class YOLOv8Loss(nn.Module):
         batch_size = pred_tensor.size(0) #8
         S, B, C = self.S, self.B, self.C
         N = 5 * B + C #3. cifra u YOLO izlazu
-
+        
+        print(target_tensor)
+    
         coord_mask = target_tensor[:, :, :, 4] > 0 #maska preko objekata
         noobj_mask = target_tensor[:, :, :, 4] == 0 #maska gde nema objekata
         #Dodaje novu dimenziju za proširenje maski na sve kanale

@@ -49,13 +49,22 @@ def organize_dataset_folder(src_folder, dest_folder):
             shutil.copy(src_file, os.path.join(dest_folder, 'images', filename))
    
 
+import numpy as np
+import torch
+from torch.utils.data import Dataset
+from PIL import Image
+import os
+
 class YoloV8Dataset(Dataset):
-    def __init__(self, img_dir, labels_dir, transform=None):
+    def __init__(self, img_dir, labels_dir, grid_size=7, num_boxes=3, num_classes=10, transform=None):
         self.img_dir = img_dir
         self.labels_dir = labels_dir
         self.transform = transform
         self.img_files = sorted(os.listdir(img_dir))
         self.label_files = sorted(os.listdir(labels_dir))
+        self.grid_size = grid_size
+        self.num_boxes = num_boxes
+        self.num_classes = num_classes
 
     def __len__(self):
         return len(self.img_files)
@@ -66,22 +75,29 @@ class YoloV8Dataset(Dataset):
 
         image = Image.open(img_path).convert("RGB")
 
+        # namesti na 0
+        box_tensor = torch.zeros((self.grid_size, self.grid_size, self.num_boxes, 5))
+        class_tensor = torch.zeros((self.grid_size, self.grid_size, self.num_classes))
+
         boxes = []
         labels = []
+
+        # ucitavanje
         with open(label_path, 'r') as f:
             for line in f.readlines():
                 parts = line.strip().split()
-                labels.append(int(parts[0]))
-                #anotcije su centar, dimenzije
+                label = int(parts[0])
                 x_center, y_center, width, height = map(float, parts[1:])
-                boxes.append([x_center, y_center, width, height])
-
-        boxes = torch.tensor(boxes, dtype=torch.float32)
-        labels = torch.tensor(labels, dtype=torch.int64)
-
-        target = {"boxes": boxes, "labels": labels}
+                
+                # koordinati celije u gridu
+                grid_x = int(x_center * self.grid_size)
+                grid_y = int(y_center * self.grid_size)
+                
+                # tensori
+                box_tensor[grid_y, grid_x, 0] = torch.tensor([x_center, y_center, width, height, 1])
+                class_tensor[grid_y, grid_x, label] = 1
 
         if self.transform:
             image = self.transform(image)
 
-        return image, target
+        return image, {'boxes': box_tensor, 'labels': class_tensor}

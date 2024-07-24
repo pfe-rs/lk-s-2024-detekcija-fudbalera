@@ -41,7 +41,6 @@ class YOLOv8(nn.Module):
         x = x.view(-1, S, S, 5 * B + C)
         return x
     
-def collate_fn(batch):
-    return tuple(zip(*batch))
+
 
 

@@ -39,7 +39,7 @@ N = 3
 
 #Features za YOLOv8
 
-features = nn.Sequential(
+features_yolo = nn.Sequential(
     nn.Conv2d(512, 256, kernel_size=3, stride=1, padding=1),
     nn.ReLU(inplace=True),
     nn.Conv2d(256, 128, kernel_size=3, stride=1, padding=1),
@@ -53,8 +53,7 @@ features = nn.Sequential(
 
 #putanje za slike i anotacije yolo trening
 
-train_img_dir = 'datasetoviraw/datasetyolo.zip_unzip/train/images'
-train_labels_dir = 'datasetoviraw/datasetyolo.zip_unzip/train/labels'
+
 batch_size_yolo = 8
 num_epochs_yolo = 10
 learning_rate_yolo = 0.001
@@ -70,3 +69,7 @@ num_bboxes_yolo = 2
 num_classes_yolo = 4 
 lambda_coord = 5.0
 lambda_noobj = 0.5
+
+
+learning_rate = 1e-3
+

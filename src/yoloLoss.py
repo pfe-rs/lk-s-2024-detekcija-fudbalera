@@ -99,19 +99,9 @@ class YOLOv8Loss(nn.Module):
         # cross entropy loss
         loss_cls = F.binary_cross_entropy(class_pred, class_target, reduction='sum')
 
-        # focal loss
-        loss_df = torch.zeros_like(loss_cls).to(device)
-        for i in range(batch_size):
-            for j in range(S):
-                for k in range(S):
-                    qxy = target_tensor[i, j, k, 4] # ground truth iou
-                    q_pred = pred_tensor[i, j, k, 4] # predvidjen iou
-                    alpha_xy = (1 - qxy) / (1 - q_pred)
-                    delta_xy = 4 / (3.14 ** 2) * ((torch.atan2(bbox_target[i, j, k, 2], bbox_target[i, j, k, 3]) - torch.atan2(bbox_pred[i, j, k, 2], bbox_pred[i, j, k, 3])) ** 2)
-                    loss_df += alpha_xy * (q_pred - qxy) * torch.log(q_pred) + (qxy - q_pred) * torch.log(1 - q_pred)
-        
+       
         # Total loss
-        total_loss = self.lambda_box * (loss_xy + loss_wh + loss_obj) + self.lambda_cls * loss_cls + self.lambda_df * loss_df
+        total_loss = self.lambda_box * (loss_xy + loss_wh + loss_obj) + self.lambda_cls * loss_cls + self.lambda_df 
         total_loss += self.phi * sum(p.pow(2.0).sum() for p in self.parameters()) # L2 regularization
 
         return total_loss

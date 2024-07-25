@@ -72,4 +72,3 @@ lambda_noobj = 0.5
 
 
 learning_rate = 1e-3
-

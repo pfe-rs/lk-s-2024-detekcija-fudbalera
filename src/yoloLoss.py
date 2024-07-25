@@ -1,5 +1,8 @@
 import torch
 from src.utils import *
+import torch.nn as nn
+import torch.nn.functional as F
+
 
 class YOLOv8Loss(nn.Module):
     def __init__(self, feature_size=7, num_bboxes=2, num_classes=4, lambda_box=1.0, lambda_cls=1.0, lambda_df=1.0, phi=0.0005):
@@ -30,11 +33,11 @@ class YOLOv8Loss(nn.Module):
         return iou
 
     def forward(self, pred_tensor, target_tensor):
+        device = 'cpu'
         batch_size = pred_tensor.size(0) #8
         S, B, C = self.S, self.B, self.C
         N = 5 * B + C #3. cifra u YOLO izlazu
         
-        print(target_tensor)
     
         coord_mask = target_tensor[:, :, :, 4] > 0 #maska preko objekata
         noobj_mask = target_tensor[:, :, :, 4] == 0 #maska gde nema objekata
@@ -54,7 +57,7 @@ class YOLOv8Loss(nn.Module):
         
         noobj_pred = pred_tensor[noobj_mask].view(-1, N) #predvidjanje za celije koje nemaju objekte
         noobj_target = target_tensor[noobj_mask].view(-1, N) #ciljne vrednosti za -II-
-        noobj_conf_mask = torch.zeros(noobj_pred.size()).byte().cuda()#maska za confidence predvidjen
+        noobj_conf_mask = torch.zeros(noobj_pred.size()).byte().to(device)#maska za confidence predvidjen
         
         for b in range(B):
             noobj_conf_mask[:, 4 + b * 5] = 1
@@ -63,19 +66,19 @@ class YOLOv8Loss(nn.Module):
         loss_noobj = F.binary_cross_entropy(noobj_pred_conf, noobj_target_conf, reduction='sum')#Gubitak za ćelije koje ne sadrže objekte, koristi binarnu cross-entrop
 
         # BBox loss
-        bbox_target_iou = torch.zeros(bbox_target.size()).cuda() #IoU za ciljne
-        coord_response_mask = torch.zeros(bbox_target.size()).byte().cuda() #maskira ćelije s okvirima
+        bbox_target_iou = torch.zeros(bbox_target.size()).to(device) #IoU za ciljne
+        coord_response_mask = torch.zeros(bbox_target.size()).byte().to(device) #maskira ćelije s okvirima
 
         for i in range(0, bbox_target.size(0), B): #prolazi kroz sve batchove
             pred = bbox_pred[i:i+B]#predviđanja za okvire u trenutnom segmentu
-            pred_xyxy = torch.zeros(pred.size()).cuda() ##tensor sa istim dimenzijama kao pred, ali sa nultim vrednostima, koordinate bb pretvorene u x1,y1,x2,y2
+            pred_xyxy = torch.zeros(pred.size()).to(device) ##tensor sa istim dimenzijama kao pred, ali sa nultim vrednostima, koordinate bb pretvorene u x1,y1,x2,y2
             pred_xyxy[:, :2] = pred[:, :2] / float(S) - 0.5 * pred[:, 2:4]
             #Pretvara predviđene koordinate okvira iz format (center_x, center_y, width, height) u format (x1, y1, x2, y2). Prvi deo (pred[:, :2] / float(S)) daje koordinate
             # centra okvira normalizovane na raspon [0, 1], dok - 0.5 * pred[:, 2:4] oduzima polovinu širine i visine da bi se dobio gornji levi ugao.
             pred_xyxy[:, 2:4] = pred[:, :2] / float(S) + 0.5 * pred[:, 2:4]
 
             target = bbox_target[i].view(-1, 5) #isto to za ciljne vrednosti
-            target_xyxy = torch.zeros(target.size()).cuda()
+            target_xyxy = torch.zeros(target.size()).to(device)
             target_xyxy[:, :2] = target[:, :2] / float(S) - 0.5 * target[:, 2:4]
             target_xyxy[:, 2:4] = target[:, :2] / float(S) + 0.5 * target[:, 2:4]
 
@@ -97,7 +100,7 @@ class YOLOv8Loss(nn.Module):
         loss_cls = F.binary_cross_entropy(class_pred, class_target, reduction='sum')
 
         # focal loss
-        loss_df = torch.zeros_like(loss_cls).cuda()
+        loss_df = torch.zeros_like(loss_cls).to(device)
         for i in range(batch_size):
             for j in range(S):
                 for k in range(S):

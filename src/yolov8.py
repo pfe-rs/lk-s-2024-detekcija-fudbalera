@@ -2,7 +2,7 @@ from src.utils import *
 from torchvision.models import resnet18
 
 class YOLOv8(nn.Module):
-    def __init__(self, features, num_bboxes=2, num_classes=4, bn=True):
+    def __init__(self, features, num_bboxes=1, num_classes=4, bn=True):
         super(YOLOv8, self).__init__()
         self.backbone = resnet18(pretrained=True)
         self.backbone = nn.Sequential(*list(self.backbone.children())[:-2])

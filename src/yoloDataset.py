@@ -43,7 +43,7 @@ def organize_dataset_folder(src_folder, dest_folder):
 
     for filename in os.listdir(src_folder):
         src_file = os.path.join(src_folder, filename)
-        if filename.endswith('.xml'):  # anotacije su u XML formatu
+        if filename.endswith('.txt'):  # anotacije su u TXT formatu
             shutil.copy(src_file, os.path.join(dest_folder, 'annotations', filename))
         elif filename.endswith(('.jpg', '.jpeg', '.png')):  # slike su u jpg, jpeg, png
             shutil.copy(src_file, os.path.join(dest_folder, 'images', filename))
@@ -55,16 +55,18 @@ from torch.utils.data import Dataset
 from PIL import Image
 import os
 
+import matplotlib.pyplot as plt
+
 class YoloV8Dataset(Dataset):
-    def __init__(self, img_dir, labels_dir, grid_size=7, num_boxes=3, num_classes=10, transform=None):
+    def __init__(self, img_dir, labels_dir, grid_size=7, num_boxes=1, num_classes=4, transform=None):
         self.img_dir = img_dir
         self.labels_dir = labels_dir
         self.transform = transform
-        self.img_files = sorted(os.listdir(img_dir))
-        self.label_files = sorted(os.listdir(labels_dir))
         self.grid_size = grid_size
         self.num_boxes = num_boxes
         self.num_classes = num_classes
+        self.img_files = sorted(os.listdir(img_dir))
+        self.label_files = sorted(os.listdir(labels_dir))
 
     def __len__(self):
         return len(self.img_files)
@@ -75,29 +77,39 @@ class YoloV8Dataset(Dataset):
 
         image = Image.open(img_path).convert("RGB")
 
-        # namesti na 0
+        # Initialize output tensors with zeros
         box_tensor = torch.zeros((self.grid_size, self.grid_size, self.num_boxes, 5))
         class_tensor = torch.zeros((self.grid_size, self.grid_size, self.num_classes))
 
-        boxes = []
-        labels = []
-
-        # ucitavanje
+        # Process labels
         with open(label_path, 'r') as f:
             for line in f.readlines():
+
                 parts = line.strip().split()
                 label = int(parts[0])
                 x_center, y_center, width, height = map(float, parts[1:])
-                
-                # koordinati celije u gridu
+
+                # Calculate the grid cell coordinates
                 grid_x = int(x_center * self.grid_size)
                 grid_y = int(y_center * self.grid_size)
-                
-                # tensori
-                box_tensor[grid_y, grid_x, 0] = torch.tensor([x_center, y_center, width, height, 1])
-                class_tensor[grid_y, grid_x, label] = 1
+
+                if 0 <= grid_x < self.grid_size and 0 <= grid_y < self.grid_size:
+                    for i in range(self.num_boxes):
+                        if box_tensor[grid_y, grid_x, i, 4] == 0:  # Check if the box slot is empty
+                            box_tensor[grid_y, grid_x, i] = torch.tensor([x_center, y_center, width, height, 1])
+                            class_tensor[grid_y, grid_x, label] = 1
+                            break
+                else:
+                    print(f"Bounding box is out of grid bounds: {grid_x}, {grid_y}")
 
         if self.transform:
             image = self.transform(image)
+        
 
-        return image, {'boxes': box_tensor, 'labels': class_tensor}
+        # Print tensors for debugging
+        #print(f"Box tensor shape: {box_tensor.shape}")
+        #print(f"Class tensor shape: {class_tensor.shape}")
+        #print("Box tensor:", box_tensor)
+        #print("Class tensor:", class_tensor)
+
+        return image, (box_tensor, class_tensor)

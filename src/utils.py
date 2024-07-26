@@ -10,7 +10,7 @@ num_classes = 5
 
 # Klase za detekciju
 CLASSES = ['__background__', 'player', 'referee', 'goalkeeper', 'ball']
-
+CLASSES_YOLO = ['ball', 'goalkeeper','player', 'referee']
 # Klase za base model (pre treniranja)
 classes = [
     '__background__',  # index 0
@@ -55,7 +55,7 @@ features_yolo = nn.Sequential(
 
 
 batch_size_yolo = 8
-num_epochs_yolo = 10
+num_epochs_yolo = 50
 learning_rate_yolo = 0.001
 
 transform_yolo = transforms.Compose([

@@ -16,7 +16,7 @@ class YOLOv8Loss(nn.Module):
         self.phi = phi
 
     def compute_iou(self, bbox1, bbox2):
-      #intersection over union
+
       #lt je gornji levi ugao, rb donji desni
         lt = torch.max(bbox1[:, :2].unsqueeze(1).expand_as(bbox2[:, :2].unsqueeze(0)), bbox2[:, :2].unsqueeze(0).expand_as(bbox1[:, :2].unsqueeze(1)))
         rb = torch.min(bbox1[:, 2:].unsqueeze(1).expand_as(bbox2[:, 2:].unsqueeze(0)), bbox2[:, 2:].unsqueeze(0).expand_as(bbox1[:, 2:].unsqueeze(1)))

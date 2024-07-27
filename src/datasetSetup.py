@@ -34,7 +34,6 @@ def unzipDataset(zip_file_path, extract_to):
         zip_ref.extractall(extract_to)
 
 
-
 def organize_dataset_folder(src_folder, dest_folder):
     os.makedirs(dest_folder, exist_ok=True)
     os.makedirs(os.path.join(dest_folder, 'annotations'), exist_ok=True)
